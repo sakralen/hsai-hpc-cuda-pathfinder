@@ -5,19 +5,22 @@
 
 #define TMP_SRC_LINEAR_INDEX 7
 
-// "h" at the start of a variable means that it is allocated on host; 
+// "h" at the start of a variable means that it is allocated on host;
 // "d" -- on device.
 
-int main(int argc, char** argv) {
-    if (!isDeviceValid()) {
+int main(int argc, char **argv)
+{
+    if (!isDeviceValid())
+    {
         return 1;
     }
 
-    int fieldSize = 0; 
+    int fieldSize = 0;
     int gridDimVal = 0;
     int blockDimVal = 0;
-    
-    if (!handleArgs(argc, argv, &fieldSize, &gridDimVal, &blockDimVal)) {
+
+    if (!handleArgs(argc, argv, &fieldSize, &gridDimVal, &blockDimVal))
+    {
         return 1;
     }
 
@@ -27,23 +30,25 @@ int main(int argc, char** argv) {
     setDims(&gridDim, &blockDim, gridDimVal, blockDimVal);
 
     int fieldBytes = fieldSize * fieldSize * sizeof(int);
-    int* dField = NULL;
-    int* dStates = NULL;
-   
-    if (!handleMemoryAlloc(&dField, &dStates, fieldBytes)) {
+    int *dField = NULL;
+    int *dStates = NULL;
+
+    if (!handleMemoryAlloc(&dField, &dStates, fieldBytes))
+    {
         return 1;
     }
 
-    if (!generateField(dField, dStates, fieldSize, &gridDim, &blockDim)) {
+    if (!generateField(dField, dStates, fieldSize, &gridDim, &blockDim))
+    {
         handleMemoryFree(dField, dStates);
         return 1;
-    };
+    }
 
     // Debug stuff
     setSingleElementOnDevice(dStates, TMP_SRC_LINEAR_INDEX, ON_FRONTIER);
     propagateWave<<<gridDim, blockDim>>>(fieldSize, dField, dStates);
 
-    int* hField = (int*)malloc(fieldBytes);
+    int *hField = (int *)malloc(fieldBytes);
     cudaMemcpy(hField, dField, fieldBytes, cudaMemcpyDeviceToHost);
     printField(hField, fieldSize);
     printf("\n");

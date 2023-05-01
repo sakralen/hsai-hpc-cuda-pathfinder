@@ -16,10 +16,10 @@
 
 int isDeviceValid();
 int handleArgs(int argc, char **argv, int *fieldSize, int *gridDimVal, int *blockDimVal);
-void setDims(dim3* gridDimStruct, dim3* blockDimStruct, int gridDimVal, int blockDimVal);
-int handleMemoryAlloc(int** dField, int** dStates, int fieldBytes);
-int handleMemoryFree(int* dField, int* dStates);
-void printField(int* field, int size);
+void setDims(dim3 *gridDimStruct, dim3 *blockDimStruct, int gridDimVal, int blockDimVal);
+int handleMemoryAlloc(int **dField, int **dStates, int fieldBytes);
+int handleMemoryFree(int *dField, int *dStates);
+void printField(int *field, int size);
 void setSingleElementOnDevice(int *array, int index, int value);
 
 #endif
