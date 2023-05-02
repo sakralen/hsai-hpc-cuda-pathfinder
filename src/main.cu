@@ -45,8 +45,17 @@ int main(int argc, char **argv)
     }
 
     // Debug stuff
+    int *dCanPropagateFurther = NULL;
+    cudaMalloc(&dCanPropagateFurther, sizeof(int));
+    cudaMemset(dCanPropagateFurther, 0, sizeof(int));
+
     setSingleElementOnDevice(dStates, TMP_SRC_LINEAR_INDEX, ON_FRONTIER);
-    propagateWave<<<gridDim, blockDim>>>(fieldSize, dField, dStates);
+
+    propagateWave<<<gridDim, blockDim>>>(fieldSize, dField, dStates, dCanPropagateFurther);
+
+    int hCanPropagateFurther = NULL;
+    cudaMemcpy(&hCanPropagateFurther, dCanPropagateFurther, sizeof(int), cudaMemcpyDeviceToHost);
+    printf("hCanPropagateFurther val: %d\n", hCanPropagateFurther);
 
     int *hField = (int *)malloc(fieldBytes);
     cudaMemcpy(hField, dField, fieldBytes, cudaMemcpyDeviceToHost);
@@ -55,6 +64,8 @@ int main(int argc, char **argv)
     cudaMemcpy(hField, dStates, fieldBytes, cudaMemcpyDeviceToHost);
     printField(hField, fieldSize);
     free(hField);
+
+    cudaFree(dCanPropagateFurther);
     // !Debug stuff
 
     handleMemoryFree(dField, dStates);

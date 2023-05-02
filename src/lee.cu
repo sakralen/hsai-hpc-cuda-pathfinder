@@ -16,7 +16,7 @@ __forceinline__ __device__ int isHorizontalAdjacentValid(int index, int offset, 
             && (statesDevice[index + offset] == NOT_VISITED));
 }
 
-__global__ void propagateWave(int fieldSize, int *fieldDevice, int *statesDevice)
+__global__ void propagateWave(int fieldSize, int *fieldDevice, int *statesDevice, int *dCanPropagateFurther)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -32,6 +32,9 @@ __global__ void propagateWave(int fieldSize, int *fieldDevice, int *statesDevice
         return;
     }
 
+    //__shared__ int isBlockNotTrapped;
+    int isThreadNotTrapped = FALSE;
+
     statesDevice[linearIndex] = VISITED;
 
     __syncthreads();
@@ -40,20 +43,29 @@ __global__ void propagateWave(int fieldSize, int *fieldDevice, int *statesDevice
     {
         statesDevice[linearIndex - 1] = ON_FRONTIER;
         fieldDevice[linearIndex - 1] = fieldDevice[linearIndex] + 1;
+        isThreadNotTrapped = TRUE;
     }
     if (isHorizontalAdjacentValid(linearIndex, 1, statesDevice, fieldSize))
     {
         statesDevice[linearIndex + 1] = ON_FRONTIER;
         fieldDevice[linearIndex + 1] = fieldDevice[linearIndex] + 1;
+        isThreadNotTrapped = TRUE;
     }
     if (isVerticalAdjacentValid(linearIndex, -fieldSize, statesDevice, fieldSize))
     {
         statesDevice[linearIndex - fieldSize] = ON_FRONTIER;
         fieldDevice[linearIndex - fieldSize] = fieldDevice[linearIndex] + 1;
+        isThreadNotTrapped = TRUE;
     }
     if (isVerticalAdjacentValid(linearIndex, fieldSize, statesDevice, fieldSize))
     {
         statesDevice[linearIndex + fieldSize] = ON_FRONTIER;
         fieldDevice[linearIndex + fieldSize] = fieldDevice[linearIndex] + 1;
+        isThreadNotTrapped = TRUE;
     }
+
+    //__syncthreads();
+    // atomicOr(&isBlockNotTrapped, isThreadNotTrapped);
+    __syncthreads();
+    atomicOr(dCanPropagateFurther, isThreadNotTrapped);
 }
