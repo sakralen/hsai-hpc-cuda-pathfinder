@@ -44,7 +44,7 @@ int main(int argc, char **argv)
 
     // Temporary setting src and dst points
     int srcLinear = 7;
-    int dstLinear = 55;
+    int dstLinear = 77;
 
     execPathfinder(srcLinear, dstLinear, fieldSize, dField, dStates, gridDim, blockDim);
 

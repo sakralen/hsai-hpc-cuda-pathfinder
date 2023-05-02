@@ -16,7 +16,7 @@ __forceinline__ __device__ int isHorizontalAdjacentValid(int index, int offset, 
             && (dStates[index + offset] == NOT_VISITED));
 }
 
-__global__ void propagateWave(int dstLinear, int fieldSize, int *dField, int *dStates, int *dCanPropagateFurther, int* dIsDstReached)
+__global__ void propagateWave(int dstLinearIndex, int fieldSize, int *dField, int *dStates, int *dCanPropagateFurther, int *dIsDstReached)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -64,29 +64,34 @@ __global__ void propagateWave(int dstLinear, int fieldSize, int *dField, int *dS
         isThreadNotTrapped = TRUE;
     }
 
+    int didThreadReachDst = (linearIndex == dstLinearIndex);
+
     __syncthreads();
     atomicOr(dCanPropagateFurther, isThreadNotTrapped);
+
+    __syncthreads();
+    atomicOr(dIsDstReached, didThreadReachDst);
 }
 
-void execPathfinder(int srcLinear, int dstLinear, int fieldSize, int *dField, int *dStates, dim3 gridDim, dim3 blockDim)
+void execPathfinder(int srcLinearIndex, int dstLinearIndex, int fieldSize, int *dField, int *dStates, dim3 gridDim, dim3 blockDim)
 {
     // Setting src:
-    setSingleElementOnDevice(dStates, srcLinear, ON_FRONTIER);
-    setSingleElementOnDevice(dField, srcLinear, 0);
+    setSingleElementOnDevice(dStates, srcLinearIndex, ON_FRONTIER);
+    setSingleElementOnDevice(dField, srcLinearIndex, 0);
 
     // Setting dst:
-    setSingleElementOnDevice(dStates, dstLinear, NOT_VISITED);
+    setSingleElementOnDevice(dStates, dstLinearIndex, NOT_VISITED);
 
     // Setting flags:
     int *dCanPropagateFurther = NULL;
     cudaMalloc(&dCanPropagateFurther, sizeof(int));
-    cudaMemset(dCanPropagateFurther, FALSE, sizeof(int));
+    // cudaMemset(dCanPropagateFurther, FALSE, sizeof(int));
 
     int hCanPropagateFurther = FALSE;
 
     int *dIsDstReached = NULL;
     cudaMalloc(&dIsDstReached, sizeof(int));
-    cudaMemset(dIsDstReached, FALSE, sizeof(int));
+    // cudaMemset(dIsDstReached, FALSE, sizeof(int));
 
     int hIsDstReached = FALSE;
 
@@ -94,10 +99,14 @@ void execPathfinder(int srcLinear, int dstLinear, int fieldSize, int *dField, in
     do
     {
         cudaMemset(dCanPropagateFurther, FALSE, sizeof(int));
-        propagateWave<<<gridDim, blockDim>>>(dstLinear, fieldSize, dField, dStates, dCanPropagateFurther, dIsDstReached);
-        cudaMemcpy(&hCanPropagateFurther, dCanPropagateFurther, sizeof(int), cudaMemcpyDeviceToHost);
+        cudaMemset(dIsDstReached, FALSE, sizeof(int));
 
-        // DEBUG STUFF
+        propagateWave<<<gridDim, blockDim>>>(dstLinearIndex, fieldSize, dField, dStates, dCanPropagateFurther, dIsDstReached);
+
+        cudaMemcpy(&hCanPropagateFurther, dCanPropagateFurther, sizeof(int), cudaMemcpyDeviceToHost);
+        cudaMemcpy(&hIsDstReached, dIsDstReached, sizeof(int), cudaMemcpyDeviceToHost);
+
+#ifdef DEBUG_MODE
         int fieldBytes = fieldSize * fieldSize * sizeof(int);
 
         int *hField = (int *)malloc(fieldBytes);
@@ -109,10 +118,11 @@ void execPathfinder(int srcLinear, int dstLinear, int fieldSize, int *dField, in
         free(hField);
 
         printf("hCanPropagateFurther val: %d\n", hCanPropagateFurther);
+        printf("hIsDstReached val: %d\n", hIsDstReached);
         printf("\n");
-        // !DEBUG STUFF
-
-    } while (hCanPropagateFurther != FALSE);
+#endif
+    } while ((hIsDstReached == FALSE) && (hCanPropagateFurther == TRUE)); // TODO: Probably should check this condition
 
     cudaFree(dCanPropagateFurther);
+    cudaFree(dIsDstReached);
 }
