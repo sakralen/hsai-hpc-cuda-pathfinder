@@ -2,7 +2,7 @@
 #define RANDHANDLER_CUH
 
 #include "master.cuh"
-#include "lee.cuh"
+#include "pathfinder.cuh"
 
 #include <curand.h>
 #include <curand_kernel.h>

@@ -1,9 +1,7 @@
 #include "master.cuh"
 #include "utility.cuh"
 #include "fieldgenerator.cuh"
-#include "lee.cuh"
-
-#define TMP_SRC_LINEAR_INDEX 7
+#include "pathfinder.cuh"
 
 // "h" at the start of a variable means that it is allocated on host;
 // "d" -- on device.
@@ -44,29 +42,11 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    // Debug stuff
-    int *dCanPropagateFurther = NULL;
-    cudaMalloc(&dCanPropagateFurther, sizeof(int));
-    cudaMemset(dCanPropagateFurther, 0, sizeof(int));
+    // Temporary setting src and dst points
+    int srcLinear = 7;
+    int dstLinear = 55;
 
-    setSingleElementOnDevice(dStates, TMP_SRC_LINEAR_INDEX, ON_FRONTIER);
-
-    propagateWave<<<gridDim, blockDim>>>(fieldSize, dField, dStates, dCanPropagateFurther);
-
-    int hCanPropagateFurther = NULL;
-    cudaMemcpy(&hCanPropagateFurther, dCanPropagateFurther, sizeof(int), cudaMemcpyDeviceToHost);
-    printf("hCanPropagateFurther val: %d\n", hCanPropagateFurther);
-
-    int *hField = (int *)malloc(fieldBytes);
-    cudaMemcpy(hField, dField, fieldBytes, cudaMemcpyDeviceToHost);
-    printField(hField, fieldSize);
-    printf("\n");
-    cudaMemcpy(hField, dStates, fieldBytes, cudaMemcpyDeviceToHost);
-    printField(hField, fieldSize);
-    free(hField);
-
-    cudaFree(dCanPropagateFurther);
-    // !Debug stuff
+    execPathfinder(srcLinear, dstLinear, fieldSize, dField, dStates, gridDim, blockDim);
 
     handleMemoryFree(dField, dStates);
 
