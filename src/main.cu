@@ -43,10 +43,12 @@ int main(int argc, char **argv)
     }
 
     // Temporary setting src and dst points
-    int srcLinear = 7;
-    int dstLinear = 77;
+    srand(time(NULL));
+    int srcLinearIndex = 0;
+    int dstLinearIndex = 0;
+    generateSrcAndDest(&srcLinearIndex, &dstLinearIndex, fieldSize);
 
-    execPathfinder(srcLinear, dstLinear, fieldSize, dField, dStates, gridDim, blockDim);
+    execPathfinder(srcLinearIndex, dstLinearIndex, fieldSize, dField, dStates, gridDim, blockDim);
 
     handleMemoryFree(dField, dStates);
 

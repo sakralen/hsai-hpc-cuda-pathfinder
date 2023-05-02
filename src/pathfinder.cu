@@ -126,3 +126,12 @@ void execPathfinder(int srcLinearIndex, int dstLinearIndex, int fieldSize, int *
     cudaFree(dCanPropagateFurther);
     cudaFree(dIsDstReached);
 }
+
+void generateSrcAndDest(int *srcLinearIndex, int *dstLinearIndex, int fieldSize)
+{
+    do
+    {
+        *srcLinearIndex = rand() % (fieldSize * fieldSize);
+        *dstLinearIndex = rand() % (fieldSize * fieldSize);
+    } while (abs(*srcLinearIndex - *dstLinearIndex) < DELTA_SRC_DST);
+}
