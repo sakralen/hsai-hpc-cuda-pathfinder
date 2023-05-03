@@ -6,6 +6,8 @@
 // "h" at the start of a variable means that it is allocated on host;
 // "d" -- on device.
 
+// TODO: rework field gen to make distrubtion closer to 1/12 barrier/field
+
 int main(int argc, char **argv)
 {
     if (!isDeviceValid())
@@ -42,13 +44,20 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    // Temporary setting src and dst points
     srand(time(NULL));
     int srcLinearIndex = 0;
     int dstLinearIndex = 0;
     generateSrcAndDest(&srcLinearIndex, &dstLinearIndex, fieldSize);
 
-    execPathfinder(srcLinearIndex, dstLinearIndex, fieldSize, dField, dStates, gridDim, blockDim);
+    int pathLength = execPathfinder(srcLinearIndex, dstLinearIndex, fieldSize, dField, dStates, gridDim, blockDim);
+    if (pathLength)
+    {
+        printf("Path's length is %d\n", pathLength);
+    }
+    else
+    {
+        printf("Path does not exist!\n");
+    }
 
     handleMemoryFree(dField, dStates);
 

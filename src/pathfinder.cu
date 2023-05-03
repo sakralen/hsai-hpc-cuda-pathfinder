@@ -73,7 +73,7 @@ __global__ void propagateWave(int dstLinearIndex, int fieldSize, int *dField, in
     atomicOr(dIsDstReached, didThreadReachDst);
 }
 
-void execPathfinder(int srcLinearIndex, int dstLinearIndex, int fieldSize, int *dField, int *dStates, dim3 gridDim, dim3 blockDim)
+int execPathfinder(int srcLinearIndex, int dstLinearIndex, int fieldSize, int *dField, int *dStates, dim3 gridDim, dim3 blockDim)
 {
     // Setting src:
     setSingleElementOnDevice(dStates, srcLinearIndex, ON_FRONTIER);
@@ -123,8 +123,13 @@ void execPathfinder(int srcLinearIndex, int dstLinearIndex, int fieldSize, int *
 #endif
     } while ((hIsDstReached == FALSE) && (hCanPropagateFurther == TRUE)); // TODO: Probably should check this condition
 
+    int pathLength = 0;
+    cudaMemcpy(&pathLength, &dField[dstLinearIndex], sizeof(int), cudaMemcpyDeviceToHost);
+
     cudaFree(dCanPropagateFurther);
     cudaFree(dIsDstReached);
+
+    return pathLength;
 }
 
 void generateSrcAndDest(int *srcLinearIndex, int *dstLinearIndex, int fieldSize)
