@@ -73,7 +73,7 @@ __global__ void propagateWave(int dstLinearIndex, int fieldSize, int *dField, in
     atomicOr(dIsDstReached, didThreadReachDst);
 }
 
-int execPathfinder(int srcLinearIndex, int dstLinearIndex, int fieldSize, int *dField, int *dStates, dim3 gridDim, dim3 blockDim)
+int execPathfinder(int srcLinearIndex, int dstLinearIndex, int fieldSize, int *dField, int *dStates, dim3 gridDim, dim3 blockDim, float *elapsedTime)
 {
     // Setting src:
     setSingleElementOnDevice(dStates, srcLinearIndex, ON_FRONTIER);
@@ -94,6 +94,14 @@ int execPathfinder(int srcLinearIndex, int dstLinearIndex, int fieldSize, int *d
     // cudaMemset(dIsDstReached, FALSE, sizeof(int));
 
     int hIsDstReached = FALSE;
+
+    cudaEvent_t start, stop;
+    //float elapsedTime;
+
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    cudaEventRecord(start, 0);
 
     // Pathfinder:
     do
@@ -123,11 +131,19 @@ int execPathfinder(int srcLinearIndex, int dstLinearIndex, int fieldSize, int *d
 #endif
     } while ((hIsDstReached == FALSE) && (hCanPropagateFurther == TRUE)); // TODO: Probably should check this condition
 
+    cudaEventRecord(stop, 0);
+
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(elapsedTime, start, stop);
+
     int pathLength = 0;
     cudaMemcpy(&pathLength, &dField[dstLinearIndex], sizeof(int), cudaMemcpyDeviceToHost);
 
     cudaFree(dCanPropagateFurther);
     cudaFree(dIsDstReached);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
 
     return pathLength;
 }

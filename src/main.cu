@@ -49,10 +49,12 @@ int main(int argc, char **argv)
     int dstLinearIndex = 0;
     generateSrcAndDest(&srcLinearIndex, &dstLinearIndex, fieldSize);
 
-    int pathLength = execPathfinder(srcLinearIndex, dstLinearIndex, fieldSize, dField, dStates, gridDim, blockDim);
+    float elapsedTime = 0.;
+
+    int pathLength = execPathfinder(srcLinearIndex, dstLinearIndex, fieldSize, dField, dStates, gridDim, blockDim, &elapsedTime);
     if (pathLength)
     {
-        printf("Path's length is %d\n", pathLength);
+        printf("Path's length is %d\nElapsed time is %.2f\n ms", pathLength, elapsedTime);
     }
     else
     {

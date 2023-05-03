@@ -1,3 +1,3 @@
 @echo off
-build\cuda_test.exe 10 4 4
+build\cuda_test.exe %1 %2 %3
 ::@pause
