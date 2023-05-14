@@ -47,7 +47,12 @@ int handleArgs(int argc, char **argv, int *fieldSize, int *gridDimVal, int *bloc
     if (*blockDimVal < BLOCK_DIM_MIN || *blockDimVal > BLOCK_DIM_MAX)
     {
         printf("Error: blockDimVal should be in the range of %d to %d\n", BLOCK_DIM_MIN, BLOCK_DIM_MAX);
-        return FALSE;
+        return FALSE; 
+    }
+
+    if (((*blockDimVal) * (*blockDimVal) * (*gridDimVal) * (*gridDimVal)) < ((*fieldSize) * (*fieldSize))) {
+        printf("Error: not enough threads for this field size (blockDimVal^2 * gridDimVal^2 < fieldSize^2\n)");
+        return FALSE; 
     }
 
     return TRUE;

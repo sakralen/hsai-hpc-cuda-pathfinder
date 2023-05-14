@@ -10,6 +10,9 @@
 
 int main(int argc, char **argv)
 {
+    int *tmp = new int(1);
+    delete tmp;
+
     if (!isDeviceValid())
     {
         return 1;
