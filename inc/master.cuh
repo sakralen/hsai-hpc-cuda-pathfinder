@@ -10,6 +10,4 @@
 #define TRUE (1 == 1)
 #define FALSE !TRUE
 
-#define DEBUG_MODE
-
 #endif

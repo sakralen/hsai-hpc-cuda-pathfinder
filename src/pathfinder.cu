@@ -114,7 +114,7 @@ int execPathfinder(int srcLinearIndex, int dstLinearIndex, int fieldSize, int *d
         cudaMemcpy(&hCanPropagateFurther, dCanPropagateFurther, sizeof(int), cudaMemcpyDeviceToHost);
         cudaMemcpy(&hIsDstReached, dIsDstReached, sizeof(int), cudaMemcpyDeviceToHost);
 
-#ifdef DEBUG_MODE
+#ifdef DEBUG
         int fieldBytes = fieldSize * fieldSize * sizeof(int);
 
         int *hField = (int *)malloc(fieldBytes);

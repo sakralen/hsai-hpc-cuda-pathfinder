@@ -57,7 +57,7 @@ int main(int argc, char **argv)
     int pathLength = execPathfinder(srcLinearIndex, dstLinearIndex, fieldSize, dField, dStates, gridDim, blockDim, &elapsedTime);
     if (pathLength)
     {
-        printf("Path's length is %d\nElapsed time is %.2f\n ms", pathLength, elapsedTime);
+        printf("Path's length is %d\nElapsed time is %.2f ms\n", pathLength, elapsedTime);
     }
     else
     {
