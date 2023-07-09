@@ -74,7 +74,7 @@ void execExperiment(ExperimentData data, int runsCount)
     printf("Successes: %d\n", successCount);
     printf("Failures: %d\n", failureCount);
     average /= runsCount;
-    printf("Average time: %.2f\n", average);
+    printf("Average time: %.2f ms\n", average);
     printf("----------------------------------------------------------------------------\n\n");
 }
 
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
         {100, 100, 5}, {100, 100, 10}, {100, 100, 15}, {100, 100, 20}, {100, 100, 25}, {100, 100, 30}
     };
 
-    for (int i = 0; i < 20; i++)
+    for (int i = 0; i < 24; i++)
     {
         execExperiment(experiments[i], RUNS_COUNT);
     }
