@@ -49,7 +49,6 @@ void execExperiment(ExperimentData data, int runsCount)
             continue;
         }
 
-        srand(time(NULL));
         int srcLinearIndex = 0;
         int dstLinearIndex = 0;
         generateSrcAndDest(&srcLinearIndex, &dstLinearIndex, fieldSize);
@@ -85,6 +84,8 @@ int main(int argc, char **argv)
     {
         return 1;
     }
+
+    srand(time(NULL));
 
     ExperimentData experiments[] = 
     {
