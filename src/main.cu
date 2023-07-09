@@ -61,7 +61,7 @@ void execExperiment(ExperimentData data, int runsCount)
         {
             //printf("Path's length is %d\nElapsed time is %.2f ms\n", pathLength, elapsedTime);
             successCount++;
-            average += pathLength;
+            average += elapsedTime;
         }
         else
         {
