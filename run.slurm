@@ -12,6 +12,6 @@ fi
 
 module load nvidia/cuda/10.1
 
-./build/bin/pathfinder
+./build/bin/pathfinder %1 %2 %3
 
 

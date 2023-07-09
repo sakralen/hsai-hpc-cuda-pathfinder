@@ -1,6 +1,6 @@
 PROJ_NAME = pathfinder
 BUILD_TYPE = RELEASE
-CUDA_ARCH = sm_50
+CUDA_ARCH = sm_35
 
 # Directories
 SRC_DIR = src
