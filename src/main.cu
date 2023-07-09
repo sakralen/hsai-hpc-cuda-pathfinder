@@ -38,7 +38,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    if (!generateFieldGpu(dField, dStates, fieldSize, &gridDim, &blockDim))
+    if (!generateFieldCpu(dField, dStates, fieldSize))
     {
         handleMemoryFree(dField, dStates);
         return 1;

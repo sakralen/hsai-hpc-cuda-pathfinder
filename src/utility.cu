@@ -28,6 +28,14 @@ int handleArgs(int argc, char **argv, int *fieldSize, int *gridDimVal, int *bloc
         return FALSE;
     }
 
+    printf("Passed args are:\n");
+    for (int i = 0; i < argc; i++)
+    {
+        printf("%s ", argv[i]);
+    }
+    printf("\n");
+    
+
     *fieldSize = atoi(argv[1]);
     *gridDimVal = atoi(argv[2]);
     *blockDimVal = atoi(argv[3]);
