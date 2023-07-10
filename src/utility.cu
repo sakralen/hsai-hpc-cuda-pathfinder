@@ -28,12 +28,12 @@ int handleArgs(int argc, char **argv, int *fieldSize, int *gridDimVal, int *bloc
         return FALSE;
     }
 
-    printf("Passed args are:\n");
-    for (int i = 0; i < argc; i++)
-    {
-        printf("%s ", argv[i]);
-    }
-    printf("\n");
+    // printf("Passed args are:\n");
+    // for (int i = 0; i < argc; i++)
+    // {
+    //     printf("%s ", argv[i]);
+    // }
+    // printf("\n");
     
 
     *fieldSize = atoi(argv[1]);
@@ -58,10 +58,10 @@ int handleArgs(int argc, char **argv, int *fieldSize, int *gridDimVal, int *bloc
         return FALSE; 
     }
 
-    if (((*blockDimVal) * (*blockDimVal) * (*gridDimVal) * (*gridDimVal)) < ((*fieldSize) * (*fieldSize))) {
-        printf("Error: not enough threads for this field size (blockDimVal^2 * gridDimVal^2 < fieldSize^2\n)");
-        return FALSE; 
-    }
+    // if (((*blockDimVal) * (*blockDimVal) * (*gridDimVal) * (*gridDimVal)) < ((*fieldSize) * (*fieldSize))) {
+    //     printf("Error: not enough threads for this field size (blockDimVal^2 * gridDimVal^2 < fieldSize^2\n)");
+    //     return FALSE; 
+    // }
 
     return TRUE;
 }
