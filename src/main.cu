@@ -5,8 +5,8 @@
 
 #define RUNS_COUNT 10
 #define UNIQUE_FIELDS_COUNT 3
-#define UNIQUE_GRID_NS_COUNT 3
-#define UNIQUE_BLOCK_NS_COUNT 3
+#define UNIQUE_GRID_NS_COUNT 6
+#define UNIQUE_BLOCK_NS_COUNT 6
 
 const int kFieldNs[] = {100, 225, 1000};
 const int kGridNs[] = {1, 2, 4, 16, 32, 64};
