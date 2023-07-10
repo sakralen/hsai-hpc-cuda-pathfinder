@@ -22,49 +22,56 @@ __global__ void propagateWave(int dstLinearIndex, int fieldSize, int *dField, in
     int y = blockIdx.y * blockDim.y + threadIdx.y;
     int linearIndex = x + y * gridDim.x * blockDim.x;
 
-    if (linearIndex < 0 || linearIndex >= fieldSize * fieldSize)
-    {
-        return;
-    }
-
-    if (dStates[linearIndex] != ON_FRONTIER)
-    {
-        return;
-    }
-
-    //__shared__ int isBlockNotTrapped;
     int isThreadNotTrapped = FALSE;
+    int didThreadReachDst = FALSE;
 
-    dStates[linearIndex] = VISITED;
+    while (!(linearIndex < 0 || linearIndex >= fieldSize * fieldSize)/* && !didThreadReachDst*/)
+    {
+        if (dStates[linearIndex] != ON_FRONTIER)
+        {
+            linearIndex += gridDim.x;
+            continue;
+        }
 
-    __syncthreads();
+        //__shared__ int isBlockNotTrapped;
+        // int isThreadNotTrapped = FALSE;
 
-    if (isHorizontalAdjacentValid(linearIndex, -1, dStates, fieldSize))
-    {
-        dStates[linearIndex - 1] = ON_FRONTIER;
-        dField[linearIndex - 1] = dField[linearIndex] + 1;
-        isThreadNotTrapped = TRUE;
-    }
-    if (isHorizontalAdjacentValid(linearIndex, 1, dStates, fieldSize))
-    {
-        dStates[linearIndex + 1] = ON_FRONTIER;
-        dField[linearIndex + 1] = dField[linearIndex] + 1;
-        isThreadNotTrapped = TRUE;
-    }
-    if (isVerticalAdjacentValid(linearIndex, -fieldSize, dStates, fieldSize))
-    {
-        dStates[linearIndex - fieldSize] = ON_FRONTIER;
-        dField[linearIndex - fieldSize] = dField[linearIndex] + 1;
-        isThreadNotTrapped = TRUE;
-    }
-    if (isVerticalAdjacentValid(linearIndex, fieldSize, dStates, fieldSize))
-    {
-        dStates[linearIndex + fieldSize] = ON_FRONTIER;
-        dField[linearIndex + fieldSize] = dField[linearIndex] + 1;
-        isThreadNotTrapped = TRUE;
-    }
+        dStates[linearIndex] = VISITED;
 
-    int didThreadReachDst = (linearIndex == dstLinearIndex);
+        //__syncthreads();
+
+        if (isHorizontalAdjacentValid(linearIndex, -1, dStates, fieldSize))
+        {
+            dStates[linearIndex - 1] = ON_FRONTIER;
+            dField[linearIndex - 1] = dField[linearIndex] + 1;
+            isThreadNotTrapped = TRUE;
+        }
+        if (isHorizontalAdjacentValid(linearIndex, 1, dStates, fieldSize))
+        {
+            dStates[linearIndex + 1] = ON_FRONTIER;
+            dField[linearIndex + 1] = dField[linearIndex] + 1;
+            isThreadNotTrapped = TRUE;
+        }
+        if (isVerticalAdjacentValid(linearIndex, -fieldSize, dStates, fieldSize))
+        {
+            dStates[linearIndex - fieldSize] = ON_FRONTIER;
+            dField[linearIndex - fieldSize] = dField[linearIndex] + 1;
+            isThreadNotTrapped = TRUE;
+        }
+        if (isVerticalAdjacentValid(linearIndex, fieldSize, dStates, fieldSize))
+        {
+            dStates[linearIndex + fieldSize] = ON_FRONTIER;
+            dField[linearIndex + fieldSize] = dField[linearIndex] + 1;
+            isThreadNotTrapped = TRUE;
+        }
+
+        didThreadReachDst = (linearIndex == dstLinearIndex);
+        if (didThreadReachDst) {
+            break;
+        }
+
+        linearIndex += gridDim.x;
+    }
 
     __syncthreads();
     atomicOr(dCanPropagateFurther, isThreadNotTrapped);
@@ -96,7 +103,7 @@ int execPathfinder(int srcLinearIndex, int dstLinearIndex, int fieldSize, int *d
     int hIsDstReached = FALSE;
 
     cudaEvent_t start, stop;
-    //float elapsedTime;
+    // float elapsedTime;
 
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
