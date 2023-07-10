@@ -4,18 +4,22 @@
 #include "pathfinder.cuh"
 
 #define RUNS_COUNT 10
+#define UNIQUE_FIELDS_COUNT 3
+#define UNIQUE_GRID_NS_COUNT 3
+#define UNIQUE_BLOCK_NS_COUNT 3
 
-typedef struct
-{
-    int fieldSize;
-    int gridDimVal;
-    int blockDimVal;
-} ExperimentData;
+const int kFieldNs[] = {100, 225, 1000};
+const int kGridNs[] = {1, 2, 4, 16, 32, 64};
+const int kBlockNs[] = {1, 2, 4, 16, 32, 64};
 
-void execExperiment(ExperimentData data, int runsCount)
+// const int kFieldNs[] = {5, 10, 20};
+// const int kGridNs[] = {1, 4, 16};
+// const int kBlockNs[] = {1, 4, 16};
+
+void execExperiment(int fieldSize, int gridDimVal, int blockDimVal, int runsCount)
 {
     printf("----------------------------------------------------------------------------\n");
-    printf("Experiment parameters: field size is %d, grid size is %d, block size is %d\n", data.fieldSize, data.gridDimVal, data.blockDimVal);
+    printf("Experiment parameters: field size is %d, grid size is %d, block size is %d\n", fieldSize, gridDimVal, blockDimVal);
 
     int successCount = 0;
     int failureCount = 0;
@@ -23,10 +27,6 @@ void execExperiment(ExperimentData data, int runsCount)
 
     while (successCount < runsCount)
     {
-        int fieldSize = data.fieldSize;
-        int gridDimVal = data.gridDimVal;
-        int blockDimVal = data.blockDimVal;
-
         dim3 gridDim;
         dim3 blockDim;
 
@@ -87,20 +87,12 @@ int main(int argc, char **argv)
 
     srand(time(NULL));
 
-    ExperimentData experiments[] = 
-    {
-        // {100, 5, 5}, {100, 5, 10}, {100, 5, 15}, {100, 5, 20}, {100, 5, 25}, {100, 5, 30},
-        // {100, 10, 5}, {100, 10, 10}, {100, 10, 15}, {100, 10, 20}, {100, 10, 25}, {100, 10, 30},
-        // {100, 50, 5}, {100, 50, 10}, {100, 50, 15}, {100, 50, 20}, {100, 50, 25}, {100, 50, 30},
-        // {100, 100, 5}, {100, 100, 10}, {100, 100, 15}, {100, 100, 20}, {100, 100, 25}, {100, 100, 30},
-        {225, 5, 5}, {225, 5, 10}, {225, 5, 15}, {225, 5, 20}, {225, 5, 25}, {225, 5, 30},
-        {225, 10, 5}, {225, 10, 10}, {225, 10, 15}, {225, 10, 20}, {225, 10, 25}, {225, 10, 30},
-        {225, 50, 5}, {225, 50, 10}, {225, 50, 15}, {225, 50, 20}, {225, 50, 25}, {225, 50, 30},
-        {225, 100, 5}, {225, 100, 10}, {225, 100, 15}, {225, 100, 20}, {225, 100, 25}, {225, 100, 30}
-    };
-    for (int i = 0; i < 24; i++)
-    {
-        execExperiment(experiments[i], RUNS_COUNT);
+    for (int i = 0; i < UNIQUE_FIELDS_COUNT; i++) {
+        for (int j = 0; j < UNIQUE_GRID_NS_COUNT; j++) {
+            for (int k = 0; k < UNIQUE_BLOCK_NS_COUNT; k++) {
+                execExperiment(kFieldNs[i], kGridNs[j], kBlockNs[k], RUNS_COUNT);
+            }           
+        }
     }
     
     return 0;
